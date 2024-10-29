@@ -33,7 +33,7 @@ class Clean_Data:
         df_noun = df[df['part_of_speech'] == 'noun']
 
         # Filter the column where this pattern occurs:
-        pattern = r"^[A-Z][a-z]+\s\{[mfn]\}$"
+        pattern = r"^[A-ZÄÖÜ][a-zäöüß]+\s\{[mfn]\}$"
         # Filter the data based on pattern.
         df_filt = df_noun[df_noun['german'].str.match(pattern)]
 
