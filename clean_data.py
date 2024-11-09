@@ -1,15 +1,16 @@
 import pandas as pd
 from matplotlib import pyplot as plt
+import numpy as np
 
 class Clean_Data:
     def __init__(self, path_data = str):
         self.path_data = path_data
+        self.uniq_letters = sorted(set.union(*list(self.getNouns()['das_wort'].apply(lambda x: set(x)))))
 
     def getPath(self):
         return self.path_data
     
     def getNouns(self) -> pd.DataFrame:
-        
         """Loads data acquired from dict.cc
         Returns a pandas DataFrame with cols: | word | gender |
         and around 250k lines."""
@@ -49,7 +50,24 @@ class Clean_Data:
         df_final['die_artikel'] = df_final['die_artikel'].apply(lambda x: x.strip('{}')) # x[1] also work...
         return df_final
     
+    def one_hot_encode(self, word = str) -> np.array:
+        """Creates a one hot encoded version of a string of characters.
+        One line of the output corresponds to one character of the input."""
+        # Container to store letter representing vectors.
+        word_encoded = list()
+        
+        # Loop through the word.
+        for character in word:
+            char_vec = np.where(np.array(self.uniq_letters) == character, 1.0, 0.0)
+            word_encoded.append(char_vec)
+        return np.array(word_encoded)
+
+    def bag_of_letters(self, word = str) -> np.array:
+        """Compact one hot encode."""
+        return np.sum(self.one_hot_encode(word), axis = 0)
+
     def genderPiechart(self) -> None:
+        """Display the distribution of masculine, feminine and neuter words on a piechart."""
         df_final = self.getNouns()
         # Display the distribution of words on a piechart by ChatGPT
         # Map labels and colors 
@@ -69,8 +87,3 @@ class Clean_Data:
         plt.title('Distribution of Gendered Articles')
         plt.show()
         
-
-# a = Clean_Data('de_en_vocab_data.txt')
-# df = a.getNouns()
-# print(df.head(5))
-# a.genderPiechart()
